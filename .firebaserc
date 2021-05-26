@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "chat-1eb88": {
+      "hosting": {
+        "chat-firebase": [
+          "chat-1eb88"
+        ]
+      }
+    }
+  }
+}
