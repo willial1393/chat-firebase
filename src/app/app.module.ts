@@ -1,11 +1,14 @@
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import {NgModule} from '@angular/core';
+import {BrowserModule} from '@angular/platform-browser';
 
-import { AppComponent } from './app.component';
+import {AppComponent} from './app.component';
 import {AngularFireModule} from '@angular/fire';
 import {environment} from '../environments/environment';
 import {AngularFirestoreModule} from '@angular/fire/firestore';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {ToastrModule} from 'ngx-toastr';
+import {MatInputModule} from '@angular/material/input';
+import {FormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -15,7 +18,10 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    ToastrModule.forRoot(),
+    MatInputModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {merge, Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {Chat} from '../models/chat.model';
 import {Message} from '../models/message.model';
-import {map} from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -16,28 +15,45 @@ export class ChatService {
   }
 
   getAll(email: string): Observable<Chat[]> {
-    const chatFrom: Observable<Chat[]> = this.fire.collection<Chat>(this.collection, ref => ref
-      .where('from', '==', email)
-    ).valueChanges();
-
-    const chatTo: Observable<Chat[]> = this.fire.collection<Chat>(this.collection, ref => ref
-      .where('to', '==', email)
-    ).valueChanges();
-
-    return merge(chatFrom, chatTo).pipe(
-      map(value => value.sort((a, b) => {
-        return a.updatedAt.localeCompare(b.updatedAt);
-      }))
-    );
+    // const chatFrom: Observable<Chat[]> = this.fire.collection<Chat>(this.collection, ref => ref
+    //   .where('from', '==', email)
+    // ).valueChanges();
+    //
+    // const chatTo: Observable<Chat[]> = this.fire.collection<Chat>(this.collection, ref => ref
+    //   .where('to', '==', email)
+    // ).valueChanges();
+    //
+    // return merge(chatFrom, chatTo).pipe(
+    //   map(value => value.sort((a, b) => {
+    //     return a.updatedAt.localeCompare(b.updatedAt);
+    //   }))
+    // );
+    return this.fire.collection<Chat>(this.collection).valueChanges();
   }
 
   get(id: string): Observable<Chat | undefined> {
     return this.fire.collection<Chat>(this.collection).doc(id).valueChanges();
   }
 
-  getMessage(chatId: string): Observable<Message[]> {
-    return this.fire.collection<Message>(`${this.collection}/${chatId}/messages`)
-      .valueChanges();
+  getMessage(chatId: string, limit: number): Observable<Message[]> {
+    return this.fire.collection<Message>(`${this.collection}/${chatId}/messages`, ref => ref
+      .orderBy('createdAt', 'desc')
+      .limit(limit)
+    ).valueChanges();
+  }
+
+  async getMessageOld(chatId: string, index: Message): Promise<Message[]> {
+    const res = await this.fire.collection<Message>(`${this.collection}/${chatId}/messages`, ref => ref
+      .where('createdAt', '==', index.createdAt)
+      .limit(1)
+    ).get().toPromise();
+
+    console.log(res.docs.map(value => value.data()));
+    return this.fire.collection<Message>(`${this.collection}/${chatId}/messages`, ref => ref
+      .orderBy('createdAt', 'desc')
+      .startAfter(res.docs.pop())
+      .limit(2)
+    ).valueChanges().toPromise();
   }
 
   async create(chat: Chat): Promise<void> {
