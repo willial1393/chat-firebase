@@ -139,4 +139,8 @@ export class AppComponent implements OnDestroy, OnInit {
       this.authService.login(this.email, 'admin123').then(() => console.log('ok'));
     }
   }
+
+  logout() {
+    this.auth.signOut().then();
+  }
 }
