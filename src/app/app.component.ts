@@ -5,6 +5,8 @@ import {ChatService} from './services/chat.service';
 import {ToastrService} from 'ngx-toastr';
 import {Observable, Subscription} from 'rxjs';
 import {Message} from './models/message.model';
+import {AuthService} from './services/auth.service';
+import {AngularFireAuth} from '@angular/fire/auth';
 
 @Component({
   selector: 'app-root',
@@ -19,19 +21,28 @@ export class AppComponent implements OnDestroy, OnInit {
   index: Message | undefined;
   chatId: string | undefined | null;
   private subsChat: Subscription | undefined;
-
+  email: string | undefined;
+  private subsAuth: Subscription | undefined;
 
   constructor(private chatService: ChatService,
-              private toast: ToastrService) {
+              private toast: ToastrService,
+              private authService: AuthService,
+              private auth: AngularFireAuth) {
 
   }
 
   ngOnInit(): void {
-    this.$chats = this.chatService.getAll('willial1393@gmail.com');
+    this.subsAuth = this.auth.authState.subscribe(value => {
+      console.log(value?.email);
+      if (value) {
+        this.$chats = this.chatService.getAll('willial1393@gmail.com');
+      }
+    })
   }
 
   ngOnDestroy(): void {
     this.subsChat?.unsubscribe();
+    this.subsAuth?.unsubscribe();
   }
 
   async createChat() {
@@ -121,5 +132,11 @@ export class AppComponent implements OnDestroy, OnInit {
         this.messages.push(value[0]);
       }
     });
+  }
+
+  login() {
+    if (this.email) {
+      this.authService.login(this.email, 'admin123').then(() => console.log('ok'));
+    }
   }
 }
